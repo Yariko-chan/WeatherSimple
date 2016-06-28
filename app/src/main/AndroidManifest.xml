@@ -19,6 +19,8 @@
             android:name=".CityWeatherActivity"
             android:label="@string/title_activity_city_weather"
             android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity android:name="com.weathersimple.db.AndroidDatabaseManager"
+            android:theme="@style/Theme.AppCompat.Light"/>
     </application>
 
 </manifest>

@@ -13,6 +13,7 @@ public class DBContract {
         public static final String COLUMN_CITY_NAME = "city_name";
         public static final String COLUMN_COUNTRY = "country";
 
+        public static final String[] columns = {_ID, COLUMN_CITY_ID, COLUMN_CITY_NAME, COLUMN_COUNTRY};
     }
 
     public static abstract class WeatherTable implements BaseColumns{

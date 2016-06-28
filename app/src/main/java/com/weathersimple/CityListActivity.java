@@ -1,14 +1,21 @@
 package com.weathersimple;
 
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
+
+import com.weathersimple.db.AndroidDatabaseManager;
+import static com.weathersimple.db.DBContract.*;
+import com.weathersimple.db.DBHelper;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,26 +38,23 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     }
 
     private void initControls() {
-        //fake data
-        final ArrayList<Map<String, Object>> data = new ArrayList<Map<String, Object>>(
-                5);
-        Map<String, Object> m;
-        for (int i = 0; i < 5; i++) {
-            m = new HashMap<String, Object>();
-            m.put("text", "text" + i);
-            data.add(m);
-        }
-        String[] from = {"text"};
-        int[] to = {R.id.info};
+        Button addCity = (Button) findViewById(R.id.add_city);
+        addCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), AndroidDatabaseManager.class);
+                startActivity(intent);
+            }
+        });
 
         cityList = (ListView) findViewById(R.id.city_list);
-        cityList.setAdapter(new SimpleAdapter(this,data, R.layout.item_city_list, from, to));
+        initCityListAdapter();
         cityList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                if (mTwoPane){
+                if (mTwoPane) {
                     bindWeatherFragment(position);
-                }else {
+                } else {
                     startWeatherActivity(position);
                 }
             }
@@ -76,4 +80,13 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+    private void initCityListAdapter() {
+        DBHelper handler = DBHelper.getInstance(getApplicationContext());
+        SQLiteDatabase db = handler.getReadableDatabase();
+        Cursor cursor = db.query(CityTable.CITY_TABLE_NAME, CityTable.columns, null, null, null, null, null);
+        CityListAdapter adapter = new CityListAdapter(this, cursor, 0);
+        cityList.setAdapter(adapter);
+    }
+
 }

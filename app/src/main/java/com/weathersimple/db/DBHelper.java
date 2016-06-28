@@ -1,10 +1,16 @@
 package com.weathersimple.db;
 
 import android.content.Context;
-import android.content.pm.InstrumentationInfo;
+import android.database.Cursor;
+import android.database.MatrixCursor;
+import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
+
 import com.weathersimple.db.DBContract.*;
+
+import java.util.ArrayList;
 
 /**
  * Created by Diana on 27.06.2016 at 18:10.
@@ -16,6 +22,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
+        addInitialData();
+    }
+
+
+    private void addInitialData() {
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor cursor = db.query(CityTable.CITY_TABLE_NAME, CityTable.columns, null, null, null, null, null);
+        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (cursor.getCount() < 0){
+            db.execSQL(insertCity("625144", "Minsk", "BY"));
+            db.execSQL(insertCity("703448", "Kiev", "UA"));
+            db.execSQL(insertCity("551487", "Kazan", "RU"));
+            db.execSQL(insertCity("1850147", "Tokyo", "JP"));
+            db.execSQL(insertCity("6692263", "Reykjavik", "IS"));
+        }
     }
 
     public static synchronized DBHelper getInstance(Context context) {
@@ -64,4 +85,60 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private static final String SQL_DELETE_WEATHER_TABLE =
             "DROP TABLE IF EXISTS " + WeatherTable.WEATHER_TABLE_NAME;
+
+    public static String insertCity(String cityID, String cityName, String country){
+        return "INSERT INTO " + CityTable.CITY_TABLE_NAME +
+                " ( " + CityTable.COLUMN_CITY_ID + COMMA_SEP +CityTable.COLUMN_CITY_NAME + COMMA_SEP + CityTable.COLUMN_COUNTRY + " ) " +
+                "VALUES ( '" + cityID + "', '" + cityName + "', '" + country + "' )";
+    }
+
+    public ArrayList<Cursor> getData(String Query){
+        //get writable database
+        SQLiteDatabase sqlDB = this.getWritableDatabase();
+        String[] columns = new String[] { "mesage" };
+        //an array list of cursor to save two cursors one has results from the query
+        //other cursor stores error message if any errors are triggered
+        ArrayList<Cursor> alc = new ArrayList<Cursor>(2);
+        MatrixCursor Cursor2= new MatrixCursor(columns);
+        alc.add(null);
+        alc.add(null);
+
+
+        try{
+            String maxQuery = Query ;
+            //execute the query results will be save in Cursor c
+            Cursor c = sqlDB.rawQuery(maxQuery, null);
+
+
+            //add value to cursor2
+            Cursor2.addRow(new Object[] { "Success" });
+
+            alc.set(1,Cursor2);
+            if (null != c && c.getCount() > 0) {
+
+
+                alc.set(0,c);
+                c.moveToFirst();
+
+                return alc ;
+            }
+            return alc;
+        } catch(SQLException sqlEx){
+            Log.d("printing exception", sqlEx.getMessage());
+            //if any exceptions are triggered save the error message to cursor an return the arraylist
+            Cursor2.addRow(new Object[] { ""+sqlEx.getMessage() });
+            alc.set(1,Cursor2);
+            return alc;
+        } catch(Exception ex){
+
+            Log.d("printing exception", ex.getMessage());
+
+            //if any exceptions are triggered save the error message to cursor an return the arraylist
+            Cursor2.addRow(new Object[] { ""+ex.getMessage() });
+            alc.set(1,Cursor2);
+            return alc;
+        }
+
+
+    }
 }
