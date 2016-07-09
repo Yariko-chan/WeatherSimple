@@ -9,6 +9,8 @@ import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.weathersimple.R;
+
 import static com.weathersimple.db.DBContract.*;
 
 /**
@@ -21,24 +23,36 @@ public class CityListAdapter extends CursorAdapter {
 
     @Override
     public View newView(Context context, Cursor cursor, ViewGroup parent) {
-        return LayoutInflater.from(context).inflate(R.layout.item_city_list, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.item_city_list, parent, false);
+        ViewHolder holder = new ViewHolder();
+
+        holder.cityTV = (TextView) view.findViewById(R.id.city);
+        holder.countryTV = (TextView) view.findViewById(R.id.country);
+        holder.weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
+        holder.tempTV = (TextView) view.findViewById(R.id.temperature);
+        view.setTag(holder);
+        return view;
     }
 
     @Override
     public void bindView(View view, Context context, Cursor cursor) {
-        TextView cityTV = (TextView) view.findViewById(R.id.city);
-        TextView countryTV = (TextView) view.findViewById(R.id.country);
-        ImageView weatherIcon = (ImageView) view.findViewById(R.id.weather_icon);
-        TextView tempTV = (TextView) view.findViewById(R.id.temperature);
+        ViewHolder holder = (ViewHolder) view.getTag();
 
         String cityName = getStringByColumnName(cursor, CityTable.COLUMN_CITY_NAME);
         String country = getStringByColumnName(cursor, CityTable.COLUMN_COUNTRY);
-        cityTV.setText(cityName);
-        countryTV.setText(country);
-        tempTV.setText("+25");
+        holder.cityTV.setText(cityName);
+        holder.countryTV.setText(country);
+        holder.tempTV.setText("+25");
     }
 
     private String getStringByColumnName(Cursor cursor, String columnName) {
         return cursor.getString(cursor.getColumnIndexOrThrow(columnName));
+    }
+
+    static class ViewHolder {
+        TextView cityTV;
+        TextView countryTV;
+        TextView tempTV;
+        ImageView weatherIcon;
     }
 }

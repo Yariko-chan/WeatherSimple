@@ -29,8 +29,8 @@ public class DBHelper extends SQLiteOpenHelper {
     private void addInitialData() {
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor = db.query(CityTable.CITY_TABLE_NAME, CityTable.columns, null, null, null, null, null);
-        //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-        if (cursor.getCount() < 0){
+        //TODO: find way to do check more efficiently or precreaate DB with initial data
+        if (cursor.getCount() <= 0){
             db.execSQL(insertCity("625144", "Minsk", "BY"));
             db.execSQL(insertCity("703448", "Kiev", "UA"));
             db.execSQL(insertCity("551487", "Kazan", "RU"));
