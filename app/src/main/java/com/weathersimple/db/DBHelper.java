@@ -1,12 +1,15 @@
 package com.weathersimple.db;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.MatrixCursor;
 import android.database.SQLException;
+import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.weathersimple.db.DBContract.*;
 
@@ -22,21 +25,50 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        addInitialData();
+        try {
+            addInitialData();
+        } catch (SQLiteConstraintException e) {
+            Toast.makeText(context, "Error while adding initial data.", Toast.LENGTH_LONG).show();
+        }
     }
 
 
-    private void addInitialData() {
+    private void addInitialData() throws SQLiteConstraintException{
         SQLiteDatabase db = getWritableDatabase();
         Cursor cursor = db.query(CityTable.CITY_TABLE_NAME, CityTable.columns, null, null, null, null, null);
         //TODO: find way to do check more efficiently or precreaate DB with initial data
         if (cursor.getCount() <= 0){
-            db.execSQL(insertCity("625144", "Minsk", "BY"));
-            db.execSQL(insertCity("703448", "Kiev", "UA"));
-            db.execSQL(insertCity("551487", "Kazan", "RU"));
-            db.execSQL(insertCity("1850147", "Tokyo", "JP"));
-            db.execSQL(insertCity("6692263", "Reykjavik", "IS"));
+            insertCity(db, "625144", "Minsk", "BY");
+            insertCity(db, "703448", "Kiev", "UA");
+            insertCity(db, "551487", "Kazan", "RU");
+            insertCity(db, "1850147", "Tokyo", "JP");
+            insertCity(db, "6692263", "Reykjavik", "IS");
         }
+    }
+
+    private void insertCity(SQLiteDatabase db, String id, String name, String country) {
+        ContentValues row = new ContentValues();
+        row.put(CityTable.COLUMN_CITY_ID, id);
+        row.put(CityTable.COLUMN_CITY_NAME, name);
+        row.put(CityTable.COLUMN_COUNTRY, country);
+        db.insert(CityTable.CITY_TABLE_NAME, null, row);
+    }
+
+    public static void insertCityForecast(Context context, String cityId, String description, double temperature, int pressure, int humidity, int windSpeed, int windDegree, int status) {
+        DBHelper helper = DBHelper.getInstance(context);
+        SQLiteDatabase db = helper.getWritableDatabase();
+
+        ContentValues row = new ContentValues();
+        row.put(WeatherTable.COLUMN_CITY_ID, cityId);
+        row.put(WeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
+        row.put(WeatherTable.COLUMN_TEMPERATURE, temperature);
+        row.put(WeatherTable.COLUMN_PRESSURE, pressure);
+        row.put(WeatherTable.COLUMN_HUMIDITY, humidity);
+        row.put(WeatherTable.COLUMN_WIND_SPEED, windSpeed);
+        row.put(WeatherTable.COLUMN_WIND_DIRECTION, windDegree);
+        row.put(WeatherTable.COLUMN_STATUS, status);
+
+        db.insert(WeatherTable.WEATHER_TABLE_NAME, null, row);
     }
 
     public static synchronized DBHelper getInstance(Context context) {
@@ -54,7 +86,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
     }
 
     private static final String TEXT_TYPE = " TEXT";
@@ -64,33 +95,29 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String SQL_CREATE_CITY_TABLE =
             "CREATE TABLE " + CityTable.CITY_TABLE_NAME + " (" +
                     CityTable._ID + INTEGER_TYPE + " PRIMARY KEY" + COMMA_SEP +
-                    CityTable.COLUMN_CITY_ID + TEXT_TYPE + COMMA_SEP +
+                    CityTable.COLUMN_CITY_ID + TEXT_TYPE + " UNIQUE"+ COMMA_SEP +
                     CityTable.COLUMN_CITY_NAME + TEXT_TYPE + COMMA_SEP +
                     CityTable.COLUMN_COUNTRY + TEXT_TYPE + " )";
 
     private static final String SQL_CREATE_WEATHER_TABLE =
             "CREATE TABLE " + WeatherTable.WEATHER_TABLE_NAME + " (" +
                     WeatherTable._ID + INTEGER_TYPE + " PRIMARY KEY" + COMMA_SEP +
-                    WeatherTable.COLUMN_CITY_ID + TEXT_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_DATE + INTEGER_TYPE + COMMA_SEP +
+                    WeatherTable.COLUMN_CITY_ID + TEXT_TYPE + " UNIQUE" + COMMA_SEP +
                     WeatherTable.COLUMN_WEATHER_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
                     WeatherTable.COLUMN_TEMPERATURE + INTEGER_TYPE + COMMA_SEP +
                     WeatherTable.COLUMN_WIND_SPEED + INTEGER_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_WIND_DIRECTION + TEXT_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_PRECIPITATION + INTEGER_TYPE+ COMMA_SEP +
-                    WeatherTable.COLUMN_PRESSURE + INTEGER_TYPE + " )";
+                    WeatherTable.COLUMN_WIND_DIRECTION + INTEGER_TYPE + COMMA_SEP +
+                    WeatherTable.COLUMN_HUMIDITY + INTEGER_TYPE + COMMA_SEP +
+                    WeatherTable.COLUMN_PRESSURE + INTEGER_TYPE +
+                    COMMA_SEP +
+                    WeatherTable.COLUMN_STATUS + INTEGER_TYPE +
+                    " )";
 
     private static final String SQL_DELETE_CITY_TABLE =
             "DROP TABLE IF EXISTS " + CityTable.CITY_TABLE_NAME;
 
     private static final String SQL_DELETE_WEATHER_TABLE =
             "DROP TABLE IF EXISTS " + WeatherTable.WEATHER_TABLE_NAME;
-
-    public static String insertCity(String cityID, String cityName, String country){
-        return "INSERT INTO " + CityTable.CITY_TABLE_NAME +
-                " ( " + CityTable.COLUMN_CITY_ID + COMMA_SEP +CityTable.COLUMN_CITY_NAME + COMMA_SEP + CityTable.COLUMN_COUNTRY + " ) " +
-                "VALUES ( '" + cityID + "', '" + cityName + "', '" + country + "' )";
-    }
 
     public ArrayList<Cursor> getData(String Query){
         //get writable database

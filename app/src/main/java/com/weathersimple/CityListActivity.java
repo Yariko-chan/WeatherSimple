@@ -1,8 +1,10 @@
 package com.weathersimple;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -20,6 +22,8 @@ import android.widget.Toast;
 
 import com.weathersimple.db.AndroidDatabaseManager;
 import static com.weathersimple.db.DBContract.*;
+
+import com.weathersimple.db.DBContract;
 import com.weathersimple.db.DBHelper;
 
 import org.json.JSONArray;
@@ -34,10 +38,27 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
 
 public class CityListActivity extends AppCompatActivity implements CityWeatherFragment.OnFragmentInteractionListener{
     private static final String LOG_TAG = CityListActivity.class.getSimpleName();
+    public static final String OWM_LIST = "list";
+    public static final String OWM_WEATHER = "weather";
+    public static final String OWM_DESCRIPTION = "description";
+    public static final String OWM_MAIN = "main";
+    public static final String OWM_TEMP = "temp";
+    public static final String OWM_PRESSURE = "pressure";
+    public static final String OWM_HUMIDITY = "humidity";
+    public static final String OWM_WIND = "wind";
+    public static final String OWM_SPEED = "speed";
+    public static final String OWM_DEG = "deg";
+    private static final String OWM_CITY_ID = "id";
     ListView cityList;
+    private ArrayList<String> citiesList;
     private boolean mTwoPane;
 
     @Override
@@ -88,7 +109,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
         b.putString("text", "text" + position);
         fragment.setArguments(b);
         getSupportFragmentManager().beginTransaction()
-                .add(R.id.city_detail_container, fragment).commit();
+                .replace(R.id.city_detail_container, fragment).commit();
     }
 
     @Override
@@ -100,8 +121,20 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
         DBHelper handler = DBHelper.getInstance(getApplicationContext());
         SQLiteDatabase db = handler.getReadableDatabase();
         Cursor cursor = db.query(CityTable.CITY_TABLE_NAME, CityTable.columns, null, null, null, null, null);
+        createCitiesList(cursor);
         CityListAdapter adapter = new CityListAdapter(this, cursor, 0);
         cityList.setAdapter(adapter);
+    }
+
+    private void createCitiesList(Cursor cursor) {
+        citiesList = new ArrayList<String>();
+        cursor.moveToPosition(0);
+        while(!cursor.isAfterLast()) {
+            int index = cursor.getColumnIndex(CityTable.COLUMN_CITY_ID);
+            String id = cursor.getString(index);
+            citiesList.add(id);
+            cursor.moveToNext();
+        }
     }
 
     private void getForecast(){
@@ -120,7 +153,18 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     @NonNull
     private URL getUrl() throws MalformedURLException {
         //TODO: creating url from list of cities in DB
-        return new URL("http://api.openweathermap.org/data/2.5/group?id=524901,703448,2643743&units=metric&appid=4d9f72c19622360a7a3611c004c631f4");
+        String domain = "http://api.openweathermap.org";
+        StringBuilder url = new StringBuilder(domain);
+        url.append("/data/2.5/group?");
+        url.append("id=");
+        for (String cityId:citiesList) {
+            url.append(cityId);
+            url.append(",");
+        }
+        url.append("&units=metric");
+        url.append("&appid=");
+        url.append(getString(R.string.owm_appid));
+        return new URL(new String(url));
     }
 
     private boolean isNetworkConnected() {
@@ -152,14 +196,48 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
             super.onPostExecute(s);
             try {
                 parseJsonForecastToDB(s);
+                updateUI();
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), R.string.error_connection, Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    private void updateUI() {
+    }
+
     private void parseJsonForecastToDB(String s) throws JSONException {
-        
+        JSONArray cityList = new JSONObject(s).getJSONArray(OWM_LIST);
+        for (int i = 0; i < cityList.length(); i++){
+            JSONObject cityForecastObject = cityList.getJSONObject(i);
+            String cityId = cityForecastObject.getString(OWM_CITY_ID);
+
+            JSONArray weatherArray = cityForecastObject.getJSONArray(OWM_WEATHER);
+            String description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
+
+            JSONObject mainObject = cityForecastObject.getJSONObject(OWM_MAIN);
+            double temperature = mainObject.getDouble(OWM_TEMP);
+            int pressure = mainObject.getInt(OWM_PRESSURE);
+            int humidity = mainObject.getInt(OWM_HUMIDITY);
+
+            JSONObject windObject = cityForecastObject.getJSONObject(OWM_WIND);
+            int windSpeed = windObject.getInt(OWM_SPEED);
+            int windDegree = windObject.getInt(OWM_DEG);
+
+            ContentValues row = new ContentValues();
+            row.put(WeatherTable.COLUMN_CITY_ID, cityId);
+            row.put(WeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
+            row.put(WeatherTable.COLUMN_TEMPERATURE, temperature);
+            row.put(WeatherTable.COLUMN_PRESSURE, pressure);
+            row.put(WeatherTable.COLUMN_HUMIDITY, humidity);
+            row.put(WeatherTable.COLUMN_WIND_SPEED, windSpeed);
+            row.put(WeatherTable.COLUMN_WIND_DIRECTION, windDegree);
+            row.put(WeatherTable.COLUMN_STATUS, STATUS_NEW);
+
+            DBHelper.insertCityForecast(getApplicationContext(), cityId, description, temperature, pressure, humidity, windSpeed, windDegree, STATUS_NEW);
+        }
+
+        return;
     }
 
     private String queryForecast(URL url) throws IOException {
