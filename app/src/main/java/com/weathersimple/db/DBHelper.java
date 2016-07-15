@@ -43,6 +43,8 @@ public class DBHelper extends SQLiteOpenHelper {
             insertCity(db, "551487", "Kazan", "RU");
             insertCity(db, "1850147", "Tokyo", "JP");
             insertCity(db, "6692263", "Reykjavik", "IS");
+
+//            insertForecast(db, "id", "desc", 25, "pres", "hum", "wind_speed", "wind_dir");
         }
     }
 
@@ -92,8 +94,8 @@ public class DBHelper extends SQLiteOpenHelper {
                     WeatherTable.COLUMN_WIND_DIRECTION + INTEGER_TYPE + COMMA_SEP +
                     WeatherTable.COLUMN_HUMIDITY + INTEGER_TYPE + COMMA_SEP +
                     WeatherTable.COLUMN_PRESSURE + INTEGER_TYPE +
-                    COMMA_SEP +
-                    WeatherTable.COLUMN_STATUS + INTEGER_TYPE +
+//                    COMMA_SEP +
+//                    WeatherTable.COLUMN_STATUS + INTEGER_TYPE +
                     " )";
 
     private static final String SQL_DELETE_CITY_TABLE =

@@ -28,6 +28,6 @@ public class DBContract {
         public static final String COLUMN_WIND_DIRECTION = "wind_direction";
         public static final String COLUMN_HUMIDITY = "humidity";
         public static final String COLUMN_PRESSURE = "pressure";
-        public static final String COLUMN_STATUS = "status";
+//        public static final String COLUMN_STATUS = "status";
     }
 }

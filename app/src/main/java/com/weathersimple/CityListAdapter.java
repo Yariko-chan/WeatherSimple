@@ -40,13 +40,18 @@ public class CityListAdapter extends CursorAdapter {
 
         String cityName = getStringByColumnName(cursor, CityTable.COLUMN_CITY_NAME);
         String country = getStringByColumnName(cursor, CityTable.COLUMN_COUNTRY);
+        double temp =  getIntByColumnName(cursor, WeatherTable.COLUMN_TEMPERATURE);
         holder.cityTV.setText(cityName);
         holder.countryTV.setText(country);
-        holder.tempTV.setText("+25");
+        holder.tempTV.setText(""+ temp);
     }
 
     private String getStringByColumnName(Cursor cursor, String columnName) {
         return cursor.getString(cursor.getColumnIndexOrThrow(columnName));
+    }
+
+    private double getIntByColumnName(Cursor cursor, String columnName) {
+        return cursor.getDouble(cursor.getColumnIndexOrThrow(columnName));
     }
 
     static class ViewHolder {
