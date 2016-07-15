@@ -196,48 +196,59 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
             super.onPostExecute(s);
             try {
                 parseJsonForecastToDB(s);
-                updateUI();
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), R.string.error_connection, Toast.LENGTH_LONG).show();
+            } finally {
+                updateUI();
             }
         }
     }
 
     private void updateUI() {
+
     }
 
     private void parseJsonForecastToDB(String s) throws JSONException {
         JSONArray cityList = new JSONObject(s).getJSONArray(OWM_LIST);
-        for (int i = 0; i < cityList.length(); i++){
-            JSONObject cityForecastObject = cityList.getJSONObject(i);
-            String cityId = cityForecastObject.getString(OWM_CITY_ID);
 
-            JSONArray weatherArray = cityForecastObject.getJSONArray(OWM_WEATHER);
-            String description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
+        DBHelper helper = DBHelper.getInstance(getApplicationContext());
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.delete(WeatherTable.WEATHER_TABLE_NAME, null, null);
 
-            JSONObject mainObject = cityForecastObject.getJSONObject(OWM_MAIN);
-            double temperature = mainObject.getDouble(OWM_TEMP);
-            int pressure = mainObject.getInt(OWM_PRESSURE);
-            int humidity = mainObject.getInt(OWM_HUMIDITY);
+            for (int i = 0; i < cityList.length(); i++){
+                JSONObject cityForecastObject = cityList.getJSONObject(i);
+                String cityId = cityForecastObject.getString(OWM_CITY_ID);
 
-            JSONObject windObject = cityForecastObject.getJSONObject(OWM_WIND);
-            int windSpeed = windObject.getInt(OWM_SPEED);
-            int windDegree = windObject.getInt(OWM_DEG);
+                JSONArray weatherArray = cityForecastObject.getJSONArray(OWM_WEATHER);
+                String description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
 
-            ContentValues row = new ContentValues();
-            row.put(WeatherTable.COLUMN_CITY_ID, cityId);
-            row.put(WeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
-            row.put(WeatherTable.COLUMN_TEMPERATURE, temperature);
-            row.put(WeatherTable.COLUMN_PRESSURE, pressure);
-            row.put(WeatherTable.COLUMN_HUMIDITY, humidity);
-            row.put(WeatherTable.COLUMN_WIND_SPEED, windSpeed);
-            row.put(WeatherTable.COLUMN_WIND_DIRECTION, windDegree);
-            row.put(WeatherTable.COLUMN_STATUS, STATUS_NEW);
+                JSONObject mainObject = cityForecastObject.getJSONObject(OWM_MAIN);
+                double temperature = mainObject.getDouble(OWM_TEMP);
+                int pressure = mainObject.getInt(OWM_PRESSURE);
+                int humidity = mainObject.getInt(OWM_HUMIDITY);
 
-            DBHelper.insertCityForecast(getApplicationContext(), cityId, description, temperature, pressure, humidity, windSpeed, windDegree, STATUS_NEW);
+                JSONObject windObject = cityForecastObject.getJSONObject(OWM_WIND);
+                int windSpeed = windObject.getInt(OWM_SPEED);
+                int windDegree = windObject.getInt(OWM_DEG);
+
+                ContentValues row = new ContentValues();
+                row.put(WeatherTable.COLUMN_CITY_ID, cityId);
+                row.put(WeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
+                row.put(WeatherTable.COLUMN_TEMPERATURE, temperature);
+                row.put(WeatherTable.COLUMN_PRESSURE, pressure);
+                row.put(WeatherTable.COLUMN_HUMIDITY, humidity);
+                row.put(WeatherTable.COLUMN_WIND_SPEED, windSpeed);
+                row.put(WeatherTable.COLUMN_WIND_DIRECTION, windDegree);
+                row.put(WeatherTable.COLUMN_STATUS, STATUS_NEW);
+
+                db.insert(WeatherTable.WEATHER_TABLE_NAME, null, row);
+            }
+            db.setTransactionSuccessful();
+        }finally {
+            db.endTransaction();
         }
-
-        return;
     }
 
     private String queryForecast(URL url) throws IOException {
@@ -248,8 +259,8 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
 
         try {
             urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setReadTimeout(10000 /* milliseconds */);
-            urlConnection.setConnectTimeout(15000 /* milliseconds */);
+            urlConnection.setReadTimeout(10000);
+            urlConnection.setConnectTimeout(15000);
             urlConnection.setRequestMethod("GET");
             urlConnection.setDoInput(true);
             urlConnection.connect();

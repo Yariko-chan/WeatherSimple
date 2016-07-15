@@ -54,23 +54,6 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insert(CityTable.CITY_TABLE_NAME, null, row);
     }
 
-    public static void insertCityForecast(Context context, String cityId, String description, double temperature, int pressure, int humidity, int windSpeed, int windDegree, int status) {
-        DBHelper helper = DBHelper.getInstance(context);
-        SQLiteDatabase db = helper.getWritableDatabase();
-
-        ContentValues row = new ContentValues();
-        row.put(WeatherTable.COLUMN_CITY_ID, cityId);
-        row.put(WeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
-        row.put(WeatherTable.COLUMN_TEMPERATURE, temperature);
-        row.put(WeatherTable.COLUMN_PRESSURE, pressure);
-        row.put(WeatherTable.COLUMN_HUMIDITY, humidity);
-        row.put(WeatherTable.COLUMN_WIND_SPEED, windSpeed);
-        row.put(WeatherTable.COLUMN_WIND_DIRECTION, windDegree);
-        row.put(WeatherTable.COLUMN_STATUS, status);
-
-        db.insert(WeatherTable.WEATHER_TABLE_NAME, null, row);
-    }
-
     public static synchronized DBHelper getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new DBHelper(context);
