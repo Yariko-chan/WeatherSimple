@@ -19,7 +19,8 @@ import android.widget.TextView;
  * create an instance of this fragment.
  */
 public class CityWeatherFragment extends Fragment {
-    private String text;
+    private static final String CITY_ID = "id";
+    private String cityId;
 
     private OnFragmentInteractionListener mListener;
 
@@ -41,7 +42,7 @@ public class CityWeatherFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            text = getArguments().getString("text");
+            cityId = getArguments().getString(CITY_ID);
         }
     }
 
@@ -50,7 +51,7 @@ public class CityWeatherFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_city_weather, container, false);
         TextView tv = (TextView) view.findViewById(R.id.text);
-        tv.setText(text);
+        tv.setText(cityId);
         return view;
     }
 

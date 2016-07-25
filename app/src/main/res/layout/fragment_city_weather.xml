@@ -1,16 +1,116 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.weathersimple.CityWeatherFragment">
+    android:orientation="vertical"
+    tools:context="com.weathersimple.CityWeatherFragment"
+    android:columnCount="2"
+    android:rowCount="10">
 
-    <TextView
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="6"
+        android:background="@android:drawable/editbox_dropdown_dark_frame"
+        android:backgroundTint="@color/accent_material_dark">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Минск"
+            android:id="@+id/textView4"
+            android:layout_alignParentLeft="true"
+            android:layout_above="@+id/textView5"
+            android:textSize="50dp"
+            android:layout_marginLeft="5dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Беларусь"
+            android:id="@+id/textView5"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="5dp" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
-        android:id="@+id/text"
-        android:layout_gravity="center_horizontal"
-        android:gravity="center" />
+        android:layout_weight="5"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp">
 
-</FrameLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Ясно"
+            android:id="@+id/description"
+            android:layout_alignParentLeft="true"
+            android:drawableTop="@drawable/xxxh50n"
+            android:textSize="30dp"
+            android:layout_toLeftOf="@+id/temperature"
+            android:layout_toStartOf="@+id/temperature"
+            android:layout_above="@+id/pressure"
+            android:layout_alignTop="@+id/temperature"
+            android:gravity="center_horizontal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="+15 C"
+            android:id="@+id/temperature"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:textSize="45dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="1003"
+            android:id="@+id/pressure"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:drawableLeft="@drawable/l_scale"
+            android:textSize="20dp"
+            android:gravity="bottom"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="15%"
+            android:id="@+id/humidity"
+            android:drawableLeft="@drawable/l_scale"
+            android:textSize="20dp"
+            android:gravity="bottom"
+            android:layout_alignParentBottom="true"
+            android:layout_toRightOf="@+id/description"
+            android:layout_toEndOf="@+id/description" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/wind"
+            android:src="@drawable/h_arrow"
+            android:layout_below="@+id/temperature"
+            android:layout_above="@+id/humidity"
+            android:scaleType="center"
+            android:layout_alignLeft="@+id/temperature"
+            android:layout_alignRight="@+id/temperature"
+            android:layout_alignStart="@+id/temperature"
+            android:layout_alignEnd="@+id/temperature" />
+        <!--TODO: make sizes at res/values for different screens-->
+        <!--TODO: background color depending on temperature-->
+
+    </RelativeLayout>
+
+</LinearLayout>

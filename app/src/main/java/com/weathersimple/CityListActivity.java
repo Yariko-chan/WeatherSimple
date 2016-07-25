@@ -90,7 +90,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 cursor.moveToPosition(position);
-                String cityId = cursor.getString(cursor.getColumnIndexOrThrow(CityTable.COLUMN_CITY_NAME));
+                String cityId = cursor.getString(cursor.getColumnIndexOrThrow(CityTable.COLUMN_CITY_ID));
                 if (mTwoPane) {
                     bindWeatherFragment(cityId);
                 } else {
@@ -102,7 +102,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
 
     private void startWeatherActivity(String cityId) {
         Intent intent= new Intent(CityListActivity.this, CityWeatherActivity.class);
-        intent.putExtra("text",cityId);
+        intent.putExtra(OWM_CITY_ID,cityId);
         startActivityForResult(intent, 0);
     }
 
