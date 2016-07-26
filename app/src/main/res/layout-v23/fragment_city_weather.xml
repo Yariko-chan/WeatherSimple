@@ -6,9 +6,7 @@
     tools:context="com.weathersimple.CityWeatherFragment"
     android:columnCount="2"
     android:rowCount="10"
-    android:background="#69059239"
-    android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:background="#69059239">
 
 
     <RelativeLayout
@@ -25,9 +23,9 @@
             android:id="@+id/textView4"
             android:layout_alignParentLeft="true"
             android:layout_above="@+id/textView5"
-            android:textSize="50sp"
+            android:textSize="50dp"
             android:layout_marginLeft="5dp"
-            android:textColor="#ffffff" />
+            android:textColor="@color/abc_primary_text_material_dark" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -38,7 +36,7 @@
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="5dp"
-            android:textColor="#ffffff" />
+            android:textColor="@color/abc_primary_text_material_dark" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -57,11 +55,11 @@
             android:text="Ясно"
             android:id="@+id/description"
             android:drawableTop="@drawable/xxh50n"
-            android:textSize="30sp"
+            android:textSize="30dp"
             android:gravity="center_horizontal"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:textColor="#ffffff" />
+            android:textColor="@color/abc_background_cache_hint_selector_material_light" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -74,10 +72,7 @@
             android:layout_alignParentTop="true"
             android:layout_toRightOf="@+id/description"
             android:layout_toEndOf="@+id/description"
-            android:textColor="#ffffff"
-            android:paddingTop="5dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
+            android:textColor="@color/abc_background_cache_hint_selector_material_light"
             android:drawableTint="#ffffff" />
 
         <TextView
@@ -87,15 +82,11 @@
             android:text="15m/c"
             android:id="@+id/wind"
             android:drawableLeft="@drawable/l_arrow"
+            android:drawableTint="#ffffff"
             android:layout_below="@+id/temperature"
             android:layout_toRightOf="@+id/description"
             android:layout_toEndOf="@+id/description"
-            android:textColor="#ffffff"
-            android:textSize="30sp"
-            android:paddingTop="5dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:drawableTint="#ffffff" />
+            android:textColor="@color/abc_background_cache_hint_selector_material_light" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -104,16 +95,13 @@
             android:text="15%"
             android:id="@+id/humidity"
             android:drawableLeft="@drawable/l_scale"
-            android:textSize="20sp"
+            android:drawableTint="#ffffff"
+            android:textSize="20dp"
+            android:gravity="bottom"
             android:layout_below="@+id/wind"
             android:layout_toRightOf="@+id/description"
             android:layout_toEndOf="@+id/description"
-            android:textColor="#ffffff"
-            android:gravity="center_vertical"
-            android:paddingTop="5dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:drawableTint="#ffffff" />
+            android:textColor="@color/abc_background_cache_hint_selector_material_light" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -122,16 +110,12 @@
             android:text="1003"
             android:id="@+id/pressure"
             android:drawableLeft="@drawable/l_scale"
-            android:textSize="20sp"
+            android:drawableTint="#ffffff"
+            android:textSize="20dp"
             android:layout_below="@+id/humidity"
             android:layout_toRightOf="@+id/description"
             android:layout_toEndOf="@+id/description"
-            android:textColor="#ffffff"
-            android:gravity="center_vertical"
-            android:paddingTop="5dp"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:drawableTint="#ffffff" />
+            android:textColor="@color/abc_background_cache_hint_selector_material_light" />
         <!--TODO: make sizes at res/values for different screens-->
         <!--TODO: background color depending on temperature-->
 
