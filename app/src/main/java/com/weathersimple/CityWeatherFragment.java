@@ -1,7 +1,9 @@
 package com.weathersimple;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ public class CityWeatherFragment extends Fragment {
     private static final String CITY_ID = "id";
     public static final String OWM_WEATHER = "weather";
     public static final String OWM_DESCRIPTION = "description";
+    private static final String OWM_ICON = "icon";
     public static final String OWM_MAIN = "main";
     public static final String OWM_TEMP = "temp";
     public static final String OWM_PRESSURE = "pressure";
@@ -69,8 +72,20 @@ public class CityWeatherFragment extends Fragment {
             setTextByKeyInBundle(wind, b, OWM_WIND_SPEED);
             setTextByKeyInBundle(humidity, b, OWM_HUMIDITY);
             setTextByKeyInBundle(pressure, b, OWM_PRESSURE);
+
+            String icon = b.getString(OWM_ICON);
+            Drawable d = getDrawable(icon);
+            description.setCompoundDrawablesWithIntrinsicBounds(null, d, null, null);
         }
         return view;
+    }
+
+    private Drawable getDrawable(String name) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            return getResources().getDrawable(getResources().getIdentifier("w" + name, "drawable", getActivity().getPackageName()), null);
+        } else {
+            return getResources().getDrawable(getResources().getIdentifier("w" + name, "drawable", getActivity().getPackageName()));
+        }
     }
 
     private void setTextByKeyInBundle(TextView tv, Bundle b, String key){
