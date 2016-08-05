@@ -20,6 +20,17 @@ import android.widget.TextView;
  */
 public class CityWeatherFragment extends Fragment {
     private static final String CITY_ID = "id";
+    public static final String OWM_WEATHER = "weather";
+    public static final String OWM_DESCRIPTION = "description";
+    public static final String OWM_MAIN = "main";
+    public static final String OWM_TEMP = "temp";
+    public static final String OWM_PRESSURE = "pressure";
+    public static final String OWM_HUMIDITY = "humidity";
+    public static final String OWM_WIND = "wind";
+    public static final String OWM_WIND_SPEED = "speed";
+    public static final String OWM_WIND_DIRECTION = "deg";
+    private static final String OWM_CITY_NAME = "city_name";
+    private static final String OWM_COUNTRY = "country";
     private String cityId;
 
     private OnFragmentInteractionListener mListener;
@@ -27,32 +38,43 @@ public class CityWeatherFragment extends Fragment {
     public CityWeatherFragment() {
         // Required empty public constructor
     }
-
-    public static CityWeatherFragment newInstance(int someInt) {
-        CityWeatherFragment myFragment = new CityWeatherFragment();
-
-        Bundle args = new Bundle();
-        args.putInt("someInt", someInt);
-        myFragment.setArguments(args);
-
-        return myFragment;
-    }
+//
+//    public static CityWeatherFragment newInstance() {
+//        CityWeatherFragment myFragment = new CityWeatherFragment();
+//        return myFragment;
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            cityId = getArguments().getString(CITY_ID);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_city_weather, container, false);
-        TextView tv = (TextView) view.findViewById(R.id.text);
-        tv.setText(cityId);
+        TextView city = (TextView) view.findViewById(R.id.city);
+        TextView country = (TextView) view.findViewById(R.id.country);
+        TextView description = (TextView) view.findViewById(R.id.description);
+        TextView temperature = (TextView) view.findViewById(R.id.temperature);
+        TextView wind = (TextView) view.findViewById(R.id.wind);
+        TextView humidity = (TextView) view.findViewById(R.id.humidity);
+        TextView pressure = (TextView) view.findViewById(R.id.pressure);
+        if (getArguments() != null) {
+            Bundle b = getArguments();
+            setTextByKeyInBundle(city, b, OWM_CITY_NAME);
+            setTextByKeyInBundle(country, b, OWM_COUNTRY);
+            setTextByKeyInBundle(description, b, OWM_DESCRIPTION);
+            setTextByKeyInBundle(temperature, b, OWM_TEMP);
+            setTextByKeyInBundle(wind, b, OWM_WIND_SPEED);
+            setTextByKeyInBundle(humidity, b, OWM_HUMIDITY);
+            setTextByKeyInBundle(pressure, b, OWM_PRESSURE);
+        }
         return view;
+    }
+
+    private void setTextByKeyInBundle(TextView tv, Bundle b, String key){
+        tv.setText(b.getString(key));
     }
 
     @Override

@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     tools:context="com.weathersimple.CityWeatherFragment"
     android:columnCount="2"
     android:rowCount="10"
@@ -12,8 +12,8 @@
 
 
     <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
         android:layout_weight="6">
 
         <ImageView
@@ -30,11 +30,10 @@
             android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Минск"
             android:id="@+id/city"
-            android:layout_alignParentLeft="true"
-            android:layout_above="@+id/country"
             android:textSize="50sp"
-            android:layout_marginLeft="5dp"
-            android:textColor="#ffffff" />
+            android:textColor="#ffffff"
+            android:layout_alignParentLeft="true"
+            android:layout_above="@+id/country" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -46,8 +45,7 @@
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="5dp"
             android:textColor="#ffffff"
-            android:textSize="20dp" />
-
+            android:textSize="20sp" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -57,8 +55,7 @@
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
         android:layout_marginBottom="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_gravity="top|center_horizontal">
+        android:layout_marginTop="10dp">
 
         <TextView
             android:layout_width="wrap_content"

@@ -2,8 +2,6 @@
     <string name="app_name">Weather Simple</string>
     <string name="title_activity_city_weather">CityWeatherActivity</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="error_network_connection">No network connection. Please, try again later.</string>
     <string name="error_url_creation">Error in url occured. Please, send bugreport to developer.</string>
     <string name="error_connection">Connection error.Please, send bugreport to developer.</string>
