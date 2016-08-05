@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.CursorAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import static com.weathersimple.Utils.getDrawable;
 
 import com.weathersimple.R;
 
@@ -41,9 +42,11 @@ public class CityListAdapter extends CursorAdapter {
         String cityName = getStringByColumnName(cursor, CityTable.COLUMN_CITY_NAME);
         String country = getStringByColumnName(cursor, CityTable.COLUMN_COUNTRY);
         double temp =  getIntByColumnName(cursor, WeatherTable.COLUMN_TEMPERATURE);
+        String icon =  getStringByColumnName(cursor, WeatherTable.COLUMN_WEATHER_ICON);
         holder.cityTV.setText(cityName);
         holder.countryTV.setText(country);
         holder.tempTV.setText(""+ temp);
+        holder.weatherIcon.setImageDrawable(getDrawable(context, icon));
     }
 
     private String getStringByColumnName(Cursor cursor, String columnName) {

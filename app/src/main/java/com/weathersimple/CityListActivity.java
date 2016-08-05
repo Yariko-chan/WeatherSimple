@@ -54,6 +54,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     private static final String OWM_CITY_ID = "id";
     private static final String OWM_CITY_NAME = "city_name";
     private static final String OWM_COUNTRY = "country";
+    private static final String OWM_ICON = "icon";
     ListView cityList;
     private boolean mTwoPane;
 
@@ -102,6 +103,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
         putValueFromCursorToBundle(cursor, weatherInfo, CityTable.COLUMN_CITY_NAME, OWM_CITY_NAME);
         putValueFromCursorToBundle(cursor, weatherInfo, CityTable.COLUMN_COUNTRY, OWM_COUNTRY);
         putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_WEATHER_DESCRIPTION, OWM_DESCRIPTION);
+        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_WEATHER_ICON, OWM_ICON);
         putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_TEMPERATURE, OWM_TEMP);
         putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_HUMIDITY, OWM_HUMIDITY);
         putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_PRESSURE, OWM_PRESSURE);
@@ -144,7 +146,6 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
                 " FROM " + CityTable.CITY_TABLE_NAME + ", " + WeatherTable.WEATHER_TABLE_NAME +
                 " WHERE " + CityTable.CITY_TABLE_NAME + "." + CityTable.COLUMN_CITY_ID + " = " + WeatherTable.WEATHER_TABLE_NAME + "." + WeatherTable.COLUMN_CITY_ID;
         Cursor cursor = db.rawQuery(query, null);
-        String debug = DatabaseUtils.dumpCursorToString(cursor);
         createCitiesList(cursor);
         CityListAdapter adapter = new CityListAdapter(this, cursor, 0);
         cityList.setAdapter(adapter);
@@ -250,6 +251,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
 
                 JSONArray weatherArray = cityForecastObject.getJSONArray(OWM_WEATHER);
                 String description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
+                String icon = weatherArray.getJSONObject(0).getString(OWM_ICON);
 
                 JSONObject mainObject = cityForecastObject.getJSONObject(OWM_MAIN);
                 double temperature = mainObject.getDouble(OWM_TEMP);
@@ -263,6 +265,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
                 ContentValues row = new ContentValues();
                 row.put(WeatherTable.COLUMN_CITY_ID, cityId);
                 row.put(WeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
+                row.put(WeatherTable.COLUMN_WEATHER_ICON, icon);
                 row.put(WeatherTable.COLUMN_TEMPERATURE, temperature);
                 row.put(WeatherTable.COLUMN_PRESSURE, pressure);
                 row.put(WeatherTable.COLUMN_HUMIDITY, humidity);

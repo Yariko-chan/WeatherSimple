@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import static com.weathersimple.Utils.getDrawable;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -74,18 +76,10 @@ public class CityWeatherFragment extends Fragment {
             setTextByKeyInBundle(pressure, b, OWM_PRESSURE);
 
             String icon = b.getString(OWM_ICON);
-            Drawable d = getDrawable(icon);
+            Drawable d = getDrawable(getContext(), icon);
             description.setCompoundDrawablesWithIntrinsicBounds(null, d, null, null);
         }
         return view;
-    }
-
-    private Drawable getDrawable(String name) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return getResources().getDrawable(getResources().getIdentifier("w" + name, "drawable", getActivity().getPackageName()), null);
-        } else {
-            return getResources().getDrawable(getResources().getIdentifier("w" + name, "drawable", getActivity().getPackageName()));
-        }
     }
 
     private void setTextByKeyInBundle(TextView tv, Bundle b, String key){

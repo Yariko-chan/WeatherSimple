@@ -93,9 +93,8 @@ public class DBHelper extends SQLiteOpenHelper {
                     WeatherTable.COLUMN_WIND_SPEED + INTEGER_TYPE + COMMA_SEP +
                     WeatherTable.COLUMN_WIND_DIRECTION + INTEGER_TYPE + COMMA_SEP +
                     WeatherTable.COLUMN_HUMIDITY + INTEGER_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_PRESSURE + INTEGER_TYPE +
-//                    COMMA_SEP +
-//                    WeatherTable.COLUMN_STATUS + INTEGER_TYPE +
+                    WeatherTable.COLUMN_PRESSURE + INTEGER_TYPE + COMMA_SEP +
+                    WeatherTable.COLUMN_WEATHER_ICON + TEXT_TYPE +
                     " )";
 
     private static final String SQL_DELETE_CITY_TABLE =

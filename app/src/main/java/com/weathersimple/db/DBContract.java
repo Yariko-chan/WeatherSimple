@@ -21,13 +21,12 @@ public class DBContract {
     public static abstract class WeatherTable implements BaseColumns{
         public static final String WEATHER_TABLE_NAME = "weather";
         public static final String COLUMN_CITY_ID = "city_id";
-//        public static final String COLUMN_DATE = "date";
         public static final String COLUMN_WEATHER_DESCRIPTION = "description";
         public static final String COLUMN_TEMPERATURE = "temperature";
         public static final String COLUMN_WIND_SPEED = "wind_speed";
         public static final String COLUMN_WIND_DIRECTION = "wind_direction";
         public static final String COLUMN_HUMIDITY = "humidity";
         public static final String COLUMN_PRESSURE = "pressure";
-//        public static final String COLUMN_STATUS = "status";
+        public static final String COLUMN_WEATHER_ICON = "icon";
     }
 }

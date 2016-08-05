@@ -40,13 +40,15 @@
         android:padding="10dp">
 
         <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
             android:id="@+id/weather_icon"
             android:layout_alignParentTop="true"
             android:layout_centerHorizontal="true"
             android:visibility="visible"
-            android:src="@android:drawable/ic_menu_gallery" />
+            android:src="@drawable/w01d"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="false"/>
 
         <TextView
             android:layout_width="wrap_content"
