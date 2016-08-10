@@ -1,5 +1,6 @@
 package com.weathersimple;
 
+import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
@@ -52,9 +53,10 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     public static final String OWM_WIND_SPEED = "speed";
     public static final String OWM_WIND_DIRECTION = "deg";
     private static final String OWM_CITY_ID = "id";
-    private static final String OWM_CITY_NAME = "city_name";
+    private static final String OWM_CITY_NAME = "name";
     private static final String OWM_COUNTRY = "country";
     private static final String OWM_ICON = "icon";
+    private static final String OWM_SYS = "sys";
     ListView cityList;
     private boolean mTwoPane;
 
@@ -100,15 +102,15 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     @NonNull
     private Bundle createBundleFromCursor(Cursor cursor) {
         Bundle weatherInfo = new Bundle();
-        putValueFromCursorToBundle(cursor, weatherInfo, CityTable.COLUMN_CITY_NAME, OWM_CITY_NAME);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityTable.COLUMN_COUNTRY, OWM_COUNTRY);
-        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_WEATHER_DESCRIPTION, OWM_DESCRIPTION);
-        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_WEATHER_ICON, OWM_ICON);
-        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_TEMPERATURE, OWM_TEMP);
-        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_HUMIDITY, OWM_HUMIDITY);
-        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_PRESSURE, OWM_PRESSURE);
-        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_WIND_SPEED, OWM_WIND_SPEED);
-        putValueFromCursorToBundle(cursor, weatherInfo, WeatherTable.COLUMN_WIND_DIRECTION, OWM_WIND_DIRECTION);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_CITY_NAME, OWM_CITY_NAME);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_COUNTRY, OWM_COUNTRY);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WEATHER_DESCRIPTION, OWM_DESCRIPTION);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WEATHER_ICON, OWM_ICON);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_TEMPERATURE, OWM_TEMP);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_HUMIDITY, OWM_HUMIDITY);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_PRESSURE, OWM_PRESSURE);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WIND_SPEED, OWM_WIND_SPEED);
+        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WIND_DIRECTION, OWM_WIND_DIRECTION);
         return weatherInfo;
     }
 
@@ -141,17 +143,9 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     private void initCityListAdapter() {
         DBHelper handler = DBHelper.getInstance(getApplicationContext());
         SQLiteDatabase db = handler.getReadableDatabase();
-//        Cursor cursor = db.query(CityTable.CITY_TABLE_NAME, CityTable.columns, null, null, null, null, null);
-        String query = "SELECT *" +
-                " FROM " + CityTable.CITY_TABLE_NAME + ", " + WeatherTable.WEATHER_TABLE_NAME +
-                " WHERE " + CityTable.CITY_TABLE_NAME + "." + CityTable.COLUMN_CITY_ID + " = " + WeatherTable.WEATHER_TABLE_NAME + "." + WeatherTable.COLUMN_CITY_ID;
-        Cursor cursor = db.rawQuery(query, null);
-        createCitiesList(cursor);
+        Cursor cursor = db.query(CityWeatherTable.TABLE_NAME, null, null, null, null, null, null);
         CityListAdapter adapter = new CityListAdapter(this, cursor, 0);
         cityList.setAdapter(adapter);
-    }
-
-    private void createCitiesList(Cursor cursor) {
     }
 
     private void getForecast(){
@@ -164,6 +158,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
             }
         } else {
             Toast.makeText(getApplicationContext(), R.string.error_network_connection, Toast.LENGTH_LONG).show();
+
         }
     }
 
@@ -173,7 +168,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
         url.append("/data/2.5/group?id=");
         Cursor cursor = queryCitiesList();
         while(!cursor.isAfterLast()) {
-            int index = cursor.getColumnIndex(CityTable.COLUMN_CITY_ID);
+            int index = cursor.getColumnIndex(CityWeatherTable.COLUMN_CITY_ID);
             String cityId = cursor.getString(index);
             url.append(cityId + ",");
             cursor.moveToNext();
@@ -189,7 +184,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     private Cursor queryCitiesList() {
         DBHelper helper = DBHelper.getInstance(getApplicationContext());
         SQLiteDatabase db = helper.getReadableDatabase();
-        Cursor cursor = db.query(true, CityTable.CITY_TABLE_NAME, new String[]{CityTable.COLUMN_CITY_ID}, null, null, null, null, null, null);
+        Cursor cursor = db.query(true, CityWeatherTable.TABLE_NAME, new String[]{CityWeatherTable.COLUMN_CITY_ID}, null, null, null, null, null, null);
         cursor.moveToPosition(0);
         return cursor;
     }
@@ -202,11 +197,14 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     }
 
     private class GetForecastTask extends AsyncTask<URL, Void, String>{
+        ProgressDialog progress;
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
             //TODO:show progressbar here
+            progress = new ProgressDialog(CityListActivity.this);
+            progress.show();
         }
 
         @Override
@@ -227,12 +225,14 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
                 Toast.makeText(getApplicationContext(), R.string.error_connection, Toast.LENGTH_LONG).show();
             } finally {
                 updateUI();
+                progress.cancel();
             }
         }
     }
 
     private void updateUI() {
-        CursorAdapter adapter = (CursorAdapter) cityList.getAdapter();
+        CityListAdapter adapter = (CityListAdapter) cityList.getAdapter();
+        adapter.getCursor().requery();
         adapter.notifyDataSetChanged();
     }
 
@@ -243,41 +243,52 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
         SQLiteDatabase db = helper.getWritableDatabase();
         db.beginTransaction();
         try {
-            db.delete(WeatherTable.WEATHER_TABLE_NAME, null, null);
+            db.delete(CityWeatherTable.TABLE_NAME, null, null);
 
             for (int i = 0; i < cityList.length(); i++){
                 JSONObject cityForecastObject = cityList.getJSONObject(i);
-                String cityId = cityForecastObject.getString(OWM_CITY_ID);
-
-                JSONArray weatherArray = cityForecastObject.getJSONArray(OWM_WEATHER);
-                String description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
-                String icon = weatherArray.getJSONObject(0).getString(OWM_ICON);
-
-                JSONObject mainObject = cityForecastObject.getJSONObject(OWM_MAIN);
-                double temperature = mainObject.getDouble(OWM_TEMP);
-                int pressure = mainObject.getInt(OWM_PRESSURE);
-                int humidity = mainObject.getInt(OWM_HUMIDITY);
-
-                JSONObject windObject = cityForecastObject.getJSONObject(OWM_WIND);
-                int windSpeed = windObject.getInt(OWM_WIND_SPEED);
-                int windDegree = windObject.getInt(OWM_WIND_DIRECTION);
-
-                ContentValues row = new ContentValues();
-                row.put(WeatherTable.COLUMN_CITY_ID, cityId);
-                row.put(WeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
-                row.put(WeatherTable.COLUMN_WEATHER_ICON, icon);
-                row.put(WeatherTable.COLUMN_TEMPERATURE, temperature);
-                row.put(WeatherTable.COLUMN_PRESSURE, pressure);
-                row.put(WeatherTable.COLUMN_HUMIDITY, humidity);
-                row.put(WeatherTable.COLUMN_WIND_SPEED, windSpeed);
-                row.put(WeatherTable.COLUMN_WIND_DIRECTION, windDegree);
-
-                db.insert(WeatherTable.WEATHER_TABLE_NAME, null, row);
+                ContentValues row = getWeatherRow(cityForecastObject);
+                db.insert(CityWeatherTable.TABLE_NAME, null, row);
             }
             db.setTransactionSuccessful();
         }finally {
             db.endTransaction();
         }
+    }
+
+    @NonNull
+    private ContentValues getWeatherRow(JSONObject cityForecastObject) throws JSONException {
+        String cityId = cityForecastObject.getString(OWM_CITY_ID);
+        String cityName = cityForecastObject.getString(OWM_CITY_NAME);
+
+        JSONObject sysObject = cityForecastObject.getJSONObject(OWM_SYS);
+        String country = sysObject.getString(OWM_COUNTRY);
+
+        JSONArray weatherArray = cityForecastObject.getJSONArray(OWM_WEATHER);
+        String description = weatherArray.getJSONObject(0).getString(OWM_DESCRIPTION);
+        String icon = weatherArray.getJSONObject(0).getString(OWM_ICON);
+
+        JSONObject mainObject = cityForecastObject.getJSONObject(OWM_MAIN);
+        double temperature = mainObject.getDouble(OWM_TEMP);
+        int pressure = mainObject.getInt(OWM_PRESSURE);
+        int humidity = mainObject.getInt(OWM_HUMIDITY);
+
+        JSONObject windObject = cityForecastObject.getJSONObject(OWM_WIND);
+        int windSpeed = windObject.getInt(OWM_WIND_SPEED);
+        int windDegree = windObject.getInt(OWM_WIND_DIRECTION);
+
+        ContentValues row = new ContentValues();
+        row.put(CityWeatherTable.COLUMN_CITY_ID, cityId);
+        row.put(CityWeatherTable.COLUMN_CITY_NAME, cityName);
+        row.put(CityWeatherTable.COLUMN_COUNTRY, country);
+        row.put(CityWeatherTable.COLUMN_WEATHER_DESCRIPTION, description);
+        row.put(CityWeatherTable.COLUMN_WEATHER_ICON, icon);
+        row.put(CityWeatherTable.COLUMN_TEMPERATURE, temperature);
+        row.put(CityWeatherTable.COLUMN_PRESSURE, pressure);
+        row.put(CityWeatherTable.COLUMN_HUMIDITY, humidity);
+        row.put(CityWeatherTable.COLUMN_WIND_SPEED, windSpeed);
+        row.put(CityWeatherTable.COLUMN_WIND_DIRECTION, windDegree);
+        return row;
     }
 
     private String queryForecast(URL url) throws IOException {

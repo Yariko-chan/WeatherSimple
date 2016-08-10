@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 public class CityWeatherActivity extends AppCompatActivity implements CityWeatherFragment.OnFragmentInteractionListener{
-    private static final String CITY_ID = "id";
     private static final String WEATHER = "weather";
 
     @Override

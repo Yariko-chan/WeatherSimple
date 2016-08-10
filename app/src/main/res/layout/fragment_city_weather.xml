@@ -71,7 +71,8 @@
             android:gravity="center_horizontal"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
-            android:textColor="#ffffff" />
+            android:textColor="#ffffff"
+            android:singleLine="false" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -88,7 +89,8 @@
             android:paddingTop="5dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:drawableTint="#ffffff" />
+            android:drawableTint="#ffffff"
+            android:singleLine="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -105,7 +107,8 @@
             android:paddingTop="5dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:drawableTint="#ffffff" />
+            android:drawableTint="#ffffff"
+            android:singleLine="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -123,7 +126,8 @@
             android:paddingTop="5dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:drawableTint="#ffffff" />
+            android:drawableTint="#ffffff"
+            android:singleLine="true" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -141,7 +145,8 @@
             android:paddingTop="5dp"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
-            android:drawableTint="#ffffff" />
+            android:drawableTint="#ffffff"
+            android:singleLine="true" />
         <!--TODO: make sizes at res/values for different screens-->
         <!--TODO: background color depending on temperature-->
 

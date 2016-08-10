@@ -34,7 +34,7 @@ public class CityWeatherFragment extends Fragment {
     public static final String OWM_WIND = "wind";
     public static final String OWM_WIND_SPEED = "speed";
     public static final String OWM_WIND_DIRECTION = "deg";
-    private static final String OWM_CITY_NAME = "city_name";
+    private static final String OWM_CITY_NAME = "name";
     private static final String OWM_COUNTRY = "country";
     private String cityId;
 

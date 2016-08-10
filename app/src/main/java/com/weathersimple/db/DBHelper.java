@@ -3,6 +3,7 @@ package com.weathersimple.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.MatrixCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteConstraintException;
@@ -21,39 +22,39 @@ import java.util.ArrayList;
 public class DBHelper extends SQLiteOpenHelper {
     private static final int DB_VERSION = 1;
     private static final String DB_NAME = "weather_simple.db";
+    private static final String TAG = DBHelper.class.getSimpleName();
     private static DBHelper sInstance;
+    private SQLiteDatabase db;
+    private Context mContext;
 
     public DBHelper(Context context) {
         super(context, DB_NAME, null, DB_VERSION);
-        try {
-            addInitialData();
-        } catch (SQLiteConstraintException e) {
-            Toast.makeText(context, "Error while adding initial data.", Toast.LENGTH_LONG).show();
-        }
+        mContext = context;
+        db = getWritableDatabase();
     }
 
 
-    private void addInitialData() throws SQLiteConstraintException{
-        SQLiteDatabase db = getWritableDatabase();
-        Cursor cursor = db.query(CityTable.CITY_TABLE_NAME, CityTable.columns, null, null, null, null, null);
-        //TODO: find way to do check more efficiently or precreaate DB with initial data
-        if (cursor.getCount() <= 0){
+    private void addInitialData(SQLiteDatabase db) throws SQLiteConstraintException{
+        db.beginTransaction();
+        try {
             insertCity(db, "625144", "Minsk", "BY");
             insertCity(db, "703448", "Kiev", "UA");
             insertCity(db, "551487", "Kazan", "RU");
             insertCity(db, "1850147", "Tokyo", "JP");
             insertCity(db, "6692263", "Reykjavik", "IS");
-
-//            insertForecast(db, "id", "desc", 25, "pres", "hum", "wind_speed", "wind_dir");
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+//                db.close();
         }
     }
 
     private void insertCity(SQLiteDatabase db, String id, String name, String country) {
         ContentValues row = new ContentValues();
-        row.put(CityTable.COLUMN_CITY_ID, id);
-        row.put(CityTable.COLUMN_CITY_NAME, name);
-        row.put(CityTable.COLUMN_COUNTRY, country);
-        db.insert(CityTable.CITY_TABLE_NAME, null, row);
+        row.put(CityWeatherTable.COLUMN_CITY_ID, id);
+        row.put(CityWeatherTable.COLUMN_CITY_NAME, name);
+        row.put(CityWeatherTable.COLUMN_COUNTRY, country);
+        db.insert(CityWeatherTable.TABLE_NAME, null, row);
     }
 
     public static synchronized DBHelper getInstance(Context context) {
@@ -65,8 +66,12 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL(SQL_CREATE_CITY_TABLE);
-        db.execSQL(SQL_CREATE_WEATHER_TABLE);
+        db.execSQL(SQL_CREATE_TABLE);
+        try {
+            addInitialData(db);
+        } catch (SQLiteConstraintException e) {
+            Toast.makeText(mContext, "Error while adding initial data.", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
@@ -77,31 +82,20 @@ public class DBHelper extends SQLiteOpenHelper {
     private static final String INTEGER_TYPE = " INTEGER";
     private static final String COMMA_SEP = ", ";
 
-    private static final String SQL_CREATE_CITY_TABLE =
-            "CREATE TABLE " + CityTable.CITY_TABLE_NAME + " (" +
-                    CityTable._ID + INTEGER_TYPE + " PRIMARY KEY" + COMMA_SEP +
-                    CityTable.COLUMN_CITY_ID + TEXT_TYPE + " UNIQUE"+ COMMA_SEP +
-                    CityTable.COLUMN_CITY_NAME + TEXT_TYPE + COMMA_SEP +
-                    CityTable.COLUMN_COUNTRY + TEXT_TYPE + " )";
-
-    private static final String SQL_CREATE_WEATHER_TABLE =
-            "CREATE TABLE " + WeatherTable.WEATHER_TABLE_NAME + " (" +
-                    WeatherTable._ID + INTEGER_TYPE + " PRIMARY KEY" + COMMA_SEP +
-                    WeatherTable.COLUMN_CITY_ID + TEXT_TYPE + " UNIQUE" + COMMA_SEP +
-                    WeatherTable.COLUMN_WEATHER_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_TEMPERATURE + INTEGER_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_WIND_SPEED + INTEGER_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_WIND_DIRECTION + INTEGER_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_HUMIDITY + INTEGER_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_PRESSURE + INTEGER_TYPE + COMMA_SEP +
-                    WeatherTable.COLUMN_WEATHER_ICON + TEXT_TYPE +
+    private static final String SQL_CREATE_TABLE =
+            "CREATE TABLE " + CityWeatherTable.TABLE_NAME + " (" +
+                    CityWeatherTable._ID + INTEGER_TYPE + " PRIMARY KEY" + COMMA_SEP +
+                    CityWeatherTable.COLUMN_CITY_ID + TEXT_TYPE + " UNIQUE"+ COMMA_SEP +
+                    CityWeatherTable.COLUMN_CITY_NAME + TEXT_TYPE + COMMA_SEP +
+                    CityWeatherTable.COLUMN_COUNTRY + TEXT_TYPE + COMMA_SEP +
+                    CityWeatherTable.COLUMN_WEATHER_DESCRIPTION + TEXT_TYPE + COMMA_SEP +
+                    CityWeatherTable.COLUMN_WEATHER_ICON + TEXT_TYPE  + COMMA_SEP +
+                    CityWeatherTable.COLUMN_WIND_SPEED + INTEGER_TYPE + COMMA_SEP +
+                    CityWeatherTable.COLUMN_WIND_DIRECTION + INTEGER_TYPE + COMMA_SEP +
+                    CityWeatherTable.COLUMN_HUMIDITY + INTEGER_TYPE + COMMA_SEP +
+                    CityWeatherTable.COLUMN_PRESSURE + INTEGER_TYPE + COMMA_SEP +
+                    CityWeatherTable.COLUMN_TEMPERATURE + INTEGER_TYPE +
                     " )";
-
-    private static final String SQL_DELETE_CITY_TABLE =
-            "DROP TABLE IF EXISTS " + CityTable.CITY_TABLE_NAME;
-
-    private static final String SQL_DELETE_WEATHER_TABLE =
-            "DROP TABLE IF EXISTS " + WeatherTable.WEATHER_TABLE_NAME;
 
     public ArrayList<Cursor> getData(String Query){
         //get writable database

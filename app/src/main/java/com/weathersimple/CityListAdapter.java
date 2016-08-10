@@ -2,6 +2,7 @@ package com.weathersimple;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,8 @@ import static com.weathersimple.db.DBContract.*;
  * Created by Diana on 28.06.2016 at 9:43.
  */
 public class CityListAdapter extends CursorAdapter {
+    private static final String TAG = CityListAdapter.class.getSimpleName();
+
     public CityListAdapter(Context context, Cursor c, int flags) {
         super(context, c, flags);
     }
@@ -39,21 +42,27 @@ public class CityListAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
 
-        String cityName = getStringByColumnName(cursor, CityTable.COLUMN_CITY_NAME);
-        String country = getStringByColumnName(cursor, CityTable.COLUMN_COUNTRY);
-        double temp =  getIntByColumnName(cursor, WeatherTable.COLUMN_TEMPERATURE);
-        String icon =  getStringByColumnName(cursor, WeatherTable.COLUMN_WEATHER_ICON);
+        String cityName = getStringByColumnName(cursor, CityWeatherTable.COLUMN_CITY_NAME);
+        String country = getStringByColumnName(cursor, CityWeatherTable.COLUMN_COUNTRY);
         holder.cityTV.setText(cityName);
         holder.countryTV.setText(country);
-        holder.tempTV.setText(""+ temp);
-        holder.weatherIcon.setImageDrawable(getDrawable(context, icon));
+
+        try {
+            int temp =  (int) getIntByColumnName(cursor, CityWeatherTable.COLUMN_TEMPERATURE);
+            String icon =  getStringByColumnName(cursor, CityWeatherTable.COLUMN_WEATHER_ICON);
+            holder.tempTV.setText(""+ temp);
+            if (icon != null) holder.weatherIcon.setImageDrawable(getDrawable(context, icon));
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, e.getLocalizedMessage());
+        }
+
     }
 
-    private String getStringByColumnName(Cursor cursor, String columnName) {
+    private String getStringByColumnName(Cursor cursor, String columnName) throws IllegalArgumentException{
         return cursor.getString(cursor.getColumnIndexOrThrow(columnName));
     }
 
-    private double getIntByColumnName(Cursor cursor, String columnName) {
+    private double getIntByColumnName(Cursor cursor, String columnName) throws IllegalArgumentException {
         return cursor.getDouble(cursor.getColumnIndexOrThrow(columnName));
     }
 
