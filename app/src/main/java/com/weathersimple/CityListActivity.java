@@ -5,7 +5,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -18,14 +17,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.weathersimple.db.AndroidDatabaseManager;
 import static com.weathersimple.db.DBContract.*;
 
-import com.weathersimple.db.DBContract;
 import com.weathersimple.db.DBHelper;
 
 import org.json.JSONArray;
@@ -57,6 +54,9 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     private static final String OWM_COUNTRY = "country";
     private static final String OWM_ICON = "icon";
     private static final String OWM_SYS = "sys";
+    private static final int REQUEST_ADD_CITY = 1;
+    private static final String LAT = "latitude";
+    private static final String LON = "longitude";
     ListView cityList;
     private boolean mTwoPane;
 
@@ -73,12 +73,20 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     }
 
     private void initControls() {
-        Button addCity = (Button) findViewById(R.id.add_city);
-        addCity.setOnClickListener(new View.OnClickListener() {
+        Button viewDB = (Button) findViewById(R.id.view_db);
+        viewDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(getApplicationContext(), AndroidDatabaseManager.class);
                 startActivity(intent);
+            }
+        });
+        Button addCity = (Button) findViewById(R.id.add_city);
+        addCity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), MapActivity.class);
+                startActivityForResult(intent, REQUEST_ADD_CITY);
             }
         });
 
@@ -140,6 +148,60 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_ADD_CITY){
+            if (resultCode == RESULT_OK){
+                double lat = data.getDoubleExtra(LAT, 200);
+                double lon = data.getDoubleExtra(LON, 200);
+                if (lat < 181 || lon < 181){
+                    try {
+                        URL url = getUrlByCoordnates(lat, lon);
+                        new GetCityNameTask().execute(url);
+                    } catch (MalformedURLException e) {
+                        Toast.makeText(getApplicationContext(), R.string.error_adding_city, Toast.LENGTH_LONG).show();
+                    }
+                } else Toast.makeText(getApplicationContext(), R.string.error_adding_city, Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+
+    private class GetCityNameTask extends AsyncTask<URL, Void, String>{
+        ProgressDialog progress;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            //TODO:show progressbar here
+            progress = new ProgressDialog(CityListActivity.this);
+            progress.show();
+        }
+
+        @Override
+        protected String doInBackground(URL... params) {
+            try {
+                return queryForecast(params[0]);
+            } catch (IOException e) {
+                return String.valueOf(R.string.error_connection);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            try {
+                parseSingleJsonForecastToDB(s);
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), R.string.error_connection, Toast.LENGTH_LONG).show();
+            } finally {
+                updateUI();
+                progress.cancel();
+            }
+        }
+    }
+
     private void initCityListAdapter() {
         DBHelper handler = DBHelper.getInstance(getApplicationContext());
         SQLiteDatabase db = handler.getReadableDatabase();
@@ -151,7 +213,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     private void getForecast(){
         if (isNetworkConnected()) {
             try {
-                URL url = getUrl();
+                URL url = getgetUrlByIds();
                 new GetForecastTask().execute(url);
             } catch (MalformedURLException e) {
                 Toast.makeText(getApplicationContext(), R.string.error_url_creation, Toast.LENGTH_LONG).show();
@@ -163,7 +225,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     }
 
     @NonNull
-    private URL getUrl() throws MalformedURLException {
+    private URL getgetUrlByIds() throws MalformedURLException {
         StringBuilder url = new StringBuilder("http://api.openweathermap.org");
         url.append("/data/2.5/group?id=");
         Cursor cursor = queryCitiesList();
@@ -173,6 +235,20 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
             url.append(cityId + ",");
             cursor.moveToNext();
         }
+        url.append("&units=metric");
+        url.append("&lang=ru");
+        url.append("&appid=");
+        url.append(getString(R.string.owm_appid));
+        return new URL(new String(url));
+    }
+
+    private URL getUrlByCoordnates(double lat, double lon) throws MalformedURLException {
+        //api.openweathermap.org/data/2.5/weather?lat=35&lon=139
+        StringBuilder url = new StringBuilder("http://api.openweathermap.org");
+        url.append("/data/2.5/weather?");
+        url.append("lat=" + lat);
+        url.append("&");
+        url.append("lon=" + lon);
         url.append("&units=metric");
         url.append("&lang=ru");
         url.append("&appid=");
@@ -220,7 +296,7 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
             try {
-                parseJsonForecastToDB(s);
+                parseMultipleJsonForecastsToDB(s);
             } catch (JSONException e) {
                 Toast.makeText(getApplicationContext(), R.string.error_connection, Toast.LENGTH_LONG).show();
             } finally {
@@ -236,7 +312,22 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
         adapter.notifyDataSetChanged();
     }
 
-    private void parseJsonForecastToDB(String s) throws JSONException {
+    private void parseSingleJsonForecastToDB(String s) throws JSONException {
+        JSONObject cityForecastObject = new JSONObject(s);
+        ContentValues row = getWeatherRow(cityForecastObject);
+        DBHelper helper = DBHelper.getInstance(getApplicationContext());
+        SQLiteDatabase db = helper.getWritableDatabase();
+        db.beginTransaction();
+        try {
+            db.insert(CityWeatherTable.TABLE_NAME, null, row);
+            db.setTransactionSuccessful();
+        } finally {
+            db.endTransaction();
+        }
+
+    }
+
+    private void parseMultipleJsonForecastsToDB(String s) throws JSONException {
         JSONArray cityList = new JSONObject(s).getJSONArray(OWM_LIST);
 
         DBHelper helper = DBHelper.getInstance(getApplicationContext());

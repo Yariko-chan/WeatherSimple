@@ -6,4 +6,7 @@
     <string name="error_url_creation">Error in url occured. Please, send bugreport to developer.</string>
     <string name="error_connection">Connection error.Please, send bugreport to developer.</string>
     <string name="owm_appid">4d9f72c19622360a7a3611c004c631f4</string>
+    <string name="title_activity_map">Map</string>
+    <string name="done">DONE</string>
+    <string name="error_adding_city">Failed to add city</string>
 </resources>
