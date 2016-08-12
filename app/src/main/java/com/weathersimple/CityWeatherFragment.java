@@ -1,6 +1,7 @@
 package com.weathersimple;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -38,6 +39,8 @@ public class CityWeatherFragment extends Fragment {
     private static final String OWM_COUNTRY = "country";
     private String cityId;
 
+    String s;
+
     private OnFragmentInteractionListener mListener;
 
     public CityWeatherFragment() {
@@ -70,10 +73,10 @@ public class CityWeatherFragment extends Fragment {
             setTextByKeyInBundle(city, b, OWM_CITY_NAME);
             setTextByKeyInBundle(country, b, OWM_COUNTRY);
             setTextByKeyInBundle(description, b, OWM_DESCRIPTION);
-            setTextByKeyInBundle(temperature, b, OWM_TEMP);
-            setTextByKeyInBundle(wind, b, OWM_WIND_SPEED);
-            setTextByKeyInBundle(humidity, b, OWM_HUMIDITY);
-            setTextByKeyInBundle(pressure, b, OWM_PRESSURE);
+            setTemperature(b, temperature);
+            setIntByKeyInBundle(wind, b, OWM_WIND_SPEED, getResources().getString(R.string.meters_per_second));
+            setIntByKeyInBundle(humidity, b, OWM_HUMIDITY, getResources().getString(R.string.percent));
+            setIntByKeyInBundle(pressure, b, OWM_PRESSURE, getResources().getString(R.string.hPA));
 
             String icon = b.getString(OWM_ICON);
             Drawable d = getDrawable(getContext(), icon);
@@ -84,6 +87,17 @@ public class CityWeatherFragment extends Fragment {
 
     private void setTextByKeyInBundle(TextView tv, Bundle b, String key){
         tv.setText(b.getString(key));
+    }
+
+    private void setIntByKeyInBundle(TextView tv, Bundle b, String key, String endText){
+        s = "" + b.getInt(key) + " " + endText;
+        tv.setText(s);
+    }
+
+    private void setTemperature(Bundle b, TextView tv) {
+        int temp = b.getInt(OWM_TEMP);
+        String t = (temp > 0)? "+" + temp : "" + temp;
+        tv.setText(t);
     }
 
     @Override

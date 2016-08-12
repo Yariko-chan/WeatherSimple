@@ -9,4 +9,7 @@
     <string name="title_activity_map">Map</string>
     <string name="done">DONE</string>
     <string name="error_adding_city">Failed to add city</string>
+    <string name="hPA">гПа</string>
+    <string name="percent">%</string>
+    <string name="meters_per_second">м/с</string>
 </resources>

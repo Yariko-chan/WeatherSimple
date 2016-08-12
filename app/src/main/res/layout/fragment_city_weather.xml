@@ -6,7 +6,7 @@
     tools:context="com.weathersimple.CityWeatherFragment"
     android:columnCount="2"
     android:rowCount="10"
-    android:background="#69059239"
+    android:background="#ff33b5e5"
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
 

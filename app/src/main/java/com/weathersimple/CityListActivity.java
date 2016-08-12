@@ -110,24 +110,32 @@ public class CityListActivity extends AppCompatActivity implements CityWeatherFr
     @NonNull
     private Bundle createBundleFromCursor(Cursor cursor) {
         Bundle weatherInfo = new Bundle();
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_CITY_NAME, OWM_CITY_NAME);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_COUNTRY, OWM_COUNTRY);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WEATHER_DESCRIPTION, OWM_DESCRIPTION);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WEATHER_ICON, OWM_ICON);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_TEMPERATURE, OWM_TEMP);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_HUMIDITY, OWM_HUMIDITY);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_PRESSURE, OWM_PRESSURE);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WIND_SPEED, OWM_WIND_SPEED);
-        putValueFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WIND_DIRECTION, OWM_WIND_DIRECTION);
+        putStringFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_CITY_NAME, OWM_CITY_NAME);
+        putStringFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_COUNTRY, OWM_COUNTRY);
+        putStringFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WEATHER_DESCRIPTION, OWM_DESCRIPTION);
+        putStringFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WEATHER_ICON, OWM_ICON);
+        putIntFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_TEMPERATURE, OWM_TEMP);
+        putIntFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_HUMIDITY, OWM_HUMIDITY);
+        putIntFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_PRESSURE, OWM_PRESSURE);
+        putIntFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WIND_SPEED, OWM_WIND_SPEED);
+        putIntFromCursorToBundle(cursor, weatherInfo, CityWeatherTable.COLUMN_WIND_DIRECTION, OWM_WIND_DIRECTION);
         return weatherInfo;
     }
 
-    private void putValueFromCursorToBundle(Cursor cursor, Bundle b, String columnName, String key) {
+    private void putStringFromCursorToBundle(Cursor cursor, Bundle b, String columnName, String key) {
         b.putString(key, getStringByColumnName(cursor, columnName));
     }
 
     private String getStringByColumnName(Cursor cursor, String columnName) {
         return cursor.getString(cursor.getColumnIndexOrThrow(columnName));
+    }
+
+    private void putIntFromCursorToBundle(Cursor cursor, Bundle b, String columnName, String key) {
+        b.putInt(key, getIntByColumnName(cursor, columnName));
+    }
+
+    private int getIntByColumnName(Cursor cursor, String columnName) {
+        return cursor.getInt(cursor.getColumnIndexOrThrow(columnName));
     }
 
     private void startWeatherActivity(Bundle weatherInfo) {

@@ -50,7 +50,8 @@ public class CityListAdapter extends CursorAdapter {
         try {
             int temp =  (int) getIntByColumnName(cursor, CityWeatherTable.COLUMN_TEMPERATURE);
             String icon =  getStringByColumnName(cursor, CityWeatherTable.COLUMN_WEATHER_ICON);
-            holder.tempTV.setText(""+ temp);
+            String t = (temp > 0)? "+" + temp : "" + temp;
+            holder.tempTV.setText(t);
             if (icon != null) holder.weatherIcon.setImageDrawable(getDrawable(context, icon));
         } catch (IllegalArgumentException e) {
             Log.e(TAG, e.getLocalizedMessage());
