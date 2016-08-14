@@ -28,7 +28,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Минск"
+            android:text="City"
             android:id="@+id/city"
             android:layout_alignParentLeft="true"
             android:layout_above="@+id/country"
@@ -40,7 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Беларусь"
+            android:text="Country"
             android:id="@+id/country"
             android:layout_alignParentBottom="true"
             android:layout_alignParentLeft="true"
@@ -64,21 +64,21 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Ясно"
             android:id="@+id/description"
-            android:drawableTop="@drawable/w50n"
+            android:drawableTop="@drawable/unknown"
             android:textSize="30sp"
             android:gravity="center_horizontal"
             android:layout_alignParentLeft="true"
             android:layout_alignParentTop="true"
             android:textColor="#ffffff"
-            android:singleLine="false" />
+            android:singleLine="false"
+            android:text="..."/>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="+15"
+            android:text="..."
             android:id="@+id/temperature"
             android:drawableRight="@drawable/celsius"
             android:textSize="45sp"
@@ -96,7 +96,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="15m/c"
+            android:text="...m/c"
             android:id="@+id/wind"
             android:drawableLeft="@drawable/arrow"
             android:layout_below="@+id/temperature"
@@ -114,7 +114,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="15%"
+            android:text="...%"
             android:id="@+id/humidity"
             android:drawableLeft="@drawable/drop"
             android:textSize="20sp"
@@ -133,7 +133,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="1003"
+            android:text="... hPa"
             android:id="@+id/pressure"
             android:drawableLeft="@drawable/pressure"
             android:textSize="20sp"
@@ -147,7 +147,6 @@
             android:paddingRight="5dp"
             android:drawableTint="#ffffff"
             android:singleLine="true" />
-        <!--TODO: make sizes at res/values for different screens-->
         <!--TODO: background color depending on temperature-->
 
     </RelativeLayout>

@@ -2,27 +2,42 @@ package com.weathersimple;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
-public class CityWeatherActivity extends AppCompatActivity implements CityWeatherFragment.OnFragmentInteractionListener{
-    private static final String WEATHER = "weather";
+public class CityWeatherActivity extends AppCompatActivity
+    implements CityWeatherFragment.OnFragmentInteractionListener {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_city_weather);
-        bindWeatherFragment();
-    }
+  private static final String WEATHER = "weather";
 
-    private void bindWeatherFragment() {
-        CityWeatherFragment fragment = new CityWeatherFragment();
-        Bundle b = getIntent().getBundleExtra(WEATHER);
-        fragment.setArguments(b);
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.city_detail_container, fragment).commit();
-    }
+  private Fragment mContent;
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_city_weather);
+    if (savedInstanceState != null) {
+      mContent = getSupportFragmentManager().getFragment(savedInstanceState, "mContent");
+    } else {
+      bindNewWeatherFragment();
     }
+  }
+
+  private void bindNewWeatherFragment() {
+    mContent = new CityWeatherFragment();
+    Bundle b = getIntent().getBundleExtra(WEATHER);
+    mContent.setArguments(b);
+    getSupportFragmentManager().beginTransaction()
+        .add(R.id.city_detail_container, mContent).commit();
+  }
+
+  @Override
+  public void onFragmentInteraction(Uri uri) {
+  }
+
+  @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    getSupportFragmentManager().putFragment(outState, "mContent", mContent);
+  }
 }

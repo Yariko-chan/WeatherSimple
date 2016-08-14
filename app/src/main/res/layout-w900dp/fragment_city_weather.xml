@@ -6,13 +6,13 @@
     tools:context="com.weathersimple.CityWeatherFragment"
     android:columnCount="2"
     android:rowCount="10"
-    android:background="#69059239"
+    android:background="#ff33b5e5"
     android:paddingTop="5dp"
     android:paddingBottom="5dp">
 
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="6">
 
@@ -49,7 +49,7 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_weight="5"
         android:layout_marginLeft="20dp"
@@ -61,9 +61,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Ясно"
+            android:text="..."
             android:id="@+id/description"
-            android:drawableTop="@drawable/w50n"
+            android:drawableTop="@drawable/unknown"
             android:textSize="30sp"
             android:gravity="center_horizontal"
             android:layout_alignParentLeft="true"
@@ -74,7 +74,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="+15"
+            android:text="..."
             android:id="@+id/temperature"
             android:drawableRight="@drawable/celsius"
             android:textSize="45sp"
@@ -91,7 +91,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="15m/c"
+            android:text="...m/c"
             android:id="@+id/wind"
             android:drawableLeft="@drawable/arrow"
             android:layout_below="@+id/temperature"
@@ -108,7 +108,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="15%"
+            android:text="...%"
             android:id="@+id/humidity"
             android:drawableLeft="@drawable/drop"
             android:textSize="20sp"
@@ -126,7 +126,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="1003"
+            android:text="...hPa"
             android:id="@+id/pressure"
             android:drawableLeft="@drawable/pressure"
             android:textSize="20sp"

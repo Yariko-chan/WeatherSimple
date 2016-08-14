@@ -14,13 +14,19 @@
         android:id="@+id/view_db"
         android:layout_alignParentBottom="true"
         android:layout_toLeftOf="@+id/add_city"
-        android:layout_toStartOf="@+id/add_city" />
+        android:layout_toStartOf="@+id/add_city"
+        android:visibility="gone"/>
 
     <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Add city"
+        android:layout_width="70dp"
+        android:layout_height="70dp"
+        android:background="@drawable/round_btn"
+        android:text="+"
         android:id="@+id/add_city"
+        android:textSize="40dp"
+        android:textColor="#ff33b5e5"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
