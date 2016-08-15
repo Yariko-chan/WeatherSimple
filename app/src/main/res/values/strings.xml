@@ -12,4 +12,7 @@
     <string name="hPA">гПа</string>
     <string name="percent">%</string>
     <string name="meters_per_second">м/с</string>
+    <string name="confirm_city_delete">Вы уверены, что хотите удалить город из списка?</string>
+    <string name="ok">OK</string>
+    <string name="cancel">ОТМЕНА</string>
 </resources>

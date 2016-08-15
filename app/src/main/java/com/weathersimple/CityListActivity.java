@@ -1,8 +1,10 @@
 package com.weathersimple;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,9 +13,12 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -21,6 +26,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.weathersimple.db.AndroidDatabaseManager;
+import com.weathersimple.db.DBContract;
 import com.weathersimple.db.DBHelper;
 
 import org.json.JSONArray;
@@ -61,16 +67,36 @@ public class CityListActivity extends AppCompatActivity
 
   private boolean twoPane;
   private ListView cityList;
+  private String currentCityId;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    getWindow().setBackgroundDrawable(null);
     setContentView(R.layout.activity_city_list);
     if (findViewById(R.id.city_detail_container) != null) {
       twoPane = true;
     }
     initControls();
     getForecast();
+  }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.city_list_menu, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+      case R.id.refresh: {
+        getForecast();
+        break;
+      }
+      default: break;
+    }
+    return super.onOptionsItemSelected(item);
   }
 
   private void initControls() {
@@ -106,6 +132,49 @@ public class CityListActivity extends AppCompatActivity
         }
       }
     });
+    cityList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+      @Override
+      public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+        Cursor cursor = (Cursor) parent.getItemAtPosition(position);
+        cursor.moveToPosition(position);
+        currentCityId = cursor.getString(cursor.getColumnIndexOrThrow(CityWeatherTable.COLUMN_CITY_ID));
+        createConfirmationDialog(CityListActivity.this).show();
+        return true;
+      }
+    });
+  }
+
+  public Dialog createConfirmationDialog(Context context) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    builder.setMessage(R.string.confirm_city_delete)
+        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            deleteCityFromDb(currentCityId);
+            dialog.dismiss();
+          }
+        })
+        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+          public void onClick(DialogInterface dialog, int id) {
+            dialog.dismiss();
+          }
+        });
+    return builder.create();
+  }
+
+  private boolean deleteCityFromDb(String cityId) {
+    boolean result;
+    DBHelper helper = DBHelper.getInstance(getApplicationContext());
+    SQLiteDatabase db = helper.getWritableDatabase();
+    db.beginTransaction();
+    try {
+      db.delete(CityWeatherTable.TABLE_NAME, CityWeatherTable.COLUMN_CITY_ID + "=" + cityId, null);
+      db.setTransactionSuccessful();
+      result = true;
+    } finally {
+      db.endTransaction();
+    }
+    updateUi();
+    return result;
   }
 
   private void bindWeatherFragment(Bundle weatherInfo) {
@@ -181,7 +250,10 @@ public class CityListActivity extends AppCompatActivity
       if (resultCode == RESULT_OK) {
         double lat = data.getDoubleExtra(LAT, 200);
         double lon = data.getDoubleExtra(LON, 200);
-        if (lat < 181 || lon < 181) {
+        if (lat >= 181 ||lon >= 181) {
+          Toast.makeText(getApplicationContext(),
+              R.string.error_adding_city, Toast.LENGTH_LONG).show();
+        } else {
           try {
             URL url = getUrlByCoordnates(lat, lon);
             new GetCityNameTask().execute(url);
@@ -189,9 +261,6 @@ public class CityListActivity extends AppCompatActivity
             Toast.makeText(getApplicationContext(),
                 R.string.error_adding_city, Toast.LENGTH_LONG).show();
           }
-        } else {
-          Toast.makeText(getApplicationContext(),
-              R.string.error_adding_city, Toast.LENGTH_LONG).show();
         }
       }
     }
@@ -320,7 +389,12 @@ public class CityListActivity extends AppCompatActivity
 
     JSONObject windObject = cityForecastObject.getJSONObject(OWM_WIND);
     int windSpeed = windObject.getInt(OWM_WIND_SPEED);
-    int windDegree = windObject.getInt(OWM_WIND_DIRECTION);
+    int windDegree;
+    try {
+      windDegree = windObject.getInt(OWM_WIND_DIRECTION);
+    } catch (JSONException e) {
+      windDegree = 0;
+    }
 
     ContentValues row = new ContentValues();
     row.put(CityWeatherTable.COLUMN_CITY_ID, cityId);

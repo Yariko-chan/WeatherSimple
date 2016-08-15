@@ -5,7 +5,7 @@
         android:id="@+id/save"
         android:icon="@drawable/done"
         app:showAsAction="always"
-        android:title="123">
+        android:title="DONE">
     </item>
 
 </menu>
